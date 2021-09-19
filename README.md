@@ -8,4 +8,4 @@ Github Repo for The Kaggle Competition
 - [ ] Abnormal Price Surge/Plumb (No. of) 不正常价格下跌/上涨（次数）
 - [ ] Total Large Orders (No. of) 总大宗交易数量
 - [ ] Breaking Of Normal Trading Range (No. of) (Overall From A Single Stock) 正常交易范围突破次数
-- [ ] 
+
