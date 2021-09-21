@@ -22,6 +22,20 @@ root_url = "https://raw.githubusercontent.com/hfawaz/cd-diagram/master/FordA/"
 x_train, y_train = readucr(root_url + "FordA_TRAIN.tsv")
 x_test, y_test = readucr(root_url + "FordA_TEST.tsv")
 
+classes = np.unique(np.concatenate((y_train, y_test), axis=0))
+
+plt.figure()
+for c in classes:
+    c_x_train = x_train[y_train == c]
+    plt.plot(c_x_train[0], label="class " + str(c))
+plt.legend(loc="best")
+plt.show()
+plt.close()
+
+x_train = x_train.reshape((x_train.shape[0], x_train.shape[1], 1))
+x_test = x_test.reshape((x_test.shape[0], x_test.shape[1], 1))
+
+
 
 
 ####using trade_example and df_joined
@@ -48,5 +62,5 @@ tail_row_id = [f'0-%d'%t_id for t_id in tail_time_id]
 df_joined['tag'] = df_joined['pred'] > df_joined['target']
 mask_df_joined = df_joined[df_joined['row_id'].isin(tail_row_id)]
 
-X = tail_trade_example.groupby('time_id')['price'].apply(pd.Series.tolist).tolist()
-y = 
+X = pd.DataFrame(tail_trade_example.groupby('time_id')['price'].apply(pd.Series.tolist).tolist())
+y = mask_df_joined['tag']
