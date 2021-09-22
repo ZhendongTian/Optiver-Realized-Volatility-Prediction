@@ -35,8 +35,21 @@ plt.close()
 x_train = x_train.reshape((x_train.shape[0], x_train.shape[1], 1))
 x_test = x_test.reshape((x_test.shape[0], x_test.shape[1], 1))
 
+classes = np.unique(np.concatenate((y_train, y_test), axis=0))
 
+plt.figure()
+for c in classes:
+    c_x_train = x_train[y_train == c]
+    plt.plot(c_x_train[0], label="class " + str(c))
+plt.legend(loc="best")
+plt.show()
+plt.close()
 
+num_classes = len(np.unique(y_train))
+
+idx = np.random.permutation(len(X_train))
+X_train = X_train[idx]
+y_train = y_train[idx]
 
 ####using trade_example and df_joined
 
@@ -64,3 +77,47 @@ mask_df_joined = df_joined[df_joined['row_id'].isin(tail_row_id)]
 
 X = pd.DataFrame(tail_trade_example.groupby('time_id')['price'].apply(pd.Series.tolist).tolist())
 y = mask_df_joined['tag']
+
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
+
+num_classes = len(np.unique(y_train))
+
+idx = np.random.permutation(len(X_train))
+X_train = X_train[idx]
+y_train = y_train[idx]
+y_train[y_train == False] = 0
+y_test[y_test == False] = 0
+
+y_train[y_train == True] = 1
+y_test[y_test == True] = 1
+
+X_train = X_train.to_numpy()
+X_test = X_test.to_numpy()
+X_train = X_train.reshape((X_train.shape[0], X_train.shape[1], 1))
+X_test = X_test.reshape((X_test.shape[0], X_test.shape[1], 1))
+
+def make_model(input_shape):
+    input_layer = keras.layers.Input(input_shape)
+
+    conv1 = keras.layers.Conv1D(filters=64, kernel_size=3, padding="same")(input_layer)
+    conv1 = keras.layers.BatchNormalization()(conv1)
+    conv1 = keras.layers.ReLU()(conv1)
+
+    conv2 = keras.layers.Conv1D(filters=64, kernel_size=3, padding="same")(conv1)
+    conv2 = keras.layers.BatchNormalization()(conv2)
+    conv2 = keras.layers.ReLU()(conv2)
+
+    conv3 = keras.layers.Conv1D(filters=64, kernel_size=3, padding="same")(conv2)
+    conv3 = keras.layers.BatchNormalization()(conv3)
+    conv3 = keras.layers.ReLU()(conv3)
+
+    gap = keras.layers.GlobalAveragePooling1D()(conv3)
+
+    output_layer = keras.layers.Dense(num_classes, activation="softmax")(gap)
+
+    return keras.models.Model(inputs=input_layer, outputs=output_layer)
+
+
+model = make_model(input_shape= X_train.shape[1:])
+keras.utils.plot_model(model, show_shapes=True)
