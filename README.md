@@ -43,4 +43,4 @@ An slice of the trade record is shown in the table below.
 **For the interests of using LSTM**, we are only using the time series of columns **price**, **size**, **order_count**. In this case, **second_in_bucket** becomes *trivial* because the concept of time will be incorported in the **LSTM** model.
 
 ### 1.1.2 Preprocessing
-Not all 
+Not all trades happened in a 10-minutes window are of the same **no. of records**.
