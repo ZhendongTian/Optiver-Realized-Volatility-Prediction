@@ -143,7 +143,7 @@ trade_example_all['avg_order_size'] = trade_example_all['size']/trade_example_al
 #Remove extreme values of avg_order_size top 1%
 mask = trade_example_all['avg_order_size'] < np.percentile(trade_example_all['avg_order_size'],99)
 trade_example_all = trade_example_all[mask]
-
+trade_example_all.reset_index(inplace=True)
 ##3. Preprocess
 #3.1 Normalize column avg_order_size MinMax normlize
 max_value = trade_example_all['avg_order_size'].max()
@@ -159,10 +159,9 @@ last_n = 20
 mask = size >= last_n
 mask = mask[mask==True]
 true_id = mask.index.tolist()
-##mask_trade_example now contains time_id where trades are >= than 20
-trade_example_all_mask = trade_example_all[trade_example_all['time_id'].isin(true_id)]
-
-
-
+##mask_trade_example now contains time_id where trades are >= than 20.
+trade_example_all_mask = pd.Series(list(zip(trade_example_all['stock_id'], trade_example_all['time_id']))).isin(true_id).values
+trade_example_all_larger = trade_example_all[trade_example_all_mask]
+##trade_example_all_larger now only contains trade record that have length >= 20.
 
 ############Training LSTM using n most prominent records.
