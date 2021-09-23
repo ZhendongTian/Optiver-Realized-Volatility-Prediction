@@ -129,9 +129,10 @@ keras.utils.plot_model(model, show_shapes=True)
 
 
 
-############New Codes
+############Training LSTM using last n records
 import pandas as pd
 import pickle
+import numpy as np
 ##1. Loading data
 trade_example_all =  pd.read_parquet('trade_train.parquet')
 with open(r"df_joined.pickle", "rb") as input_file:
@@ -148,3 +149,13 @@ trade_example_all = trade_example_all[mask]
 max_value = trade_example_all['avg_order_size'].max()
 min_value = trade_example_all['avg_order_size'].min()
 trade_example_all['avg_order_size'] = (trade_example_all['avg_order_size'] - min_value) / (max_value - min_value)
+
+#Only keep last n records for every stock - time_id pair.
+##Count the number of rows group by (stock_id,time_id)
+size = trade_example_all.groupby(['stock_id','time_id']).size()
+
+
+
+
+
+############Training LSTM using n most prominent records.
