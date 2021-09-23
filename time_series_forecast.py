@@ -154,6 +154,13 @@ trade_example_all['avg_order_size'] = (trade_example_all['avg_order_size'] - min
 ##Count the number of rows group by (stock_id,time_id)
 size = trade_example_all.groupby(['stock_id','time_id']).size()
 
+##Taking n = 20
+last_n = 20
+mask = size >= last_n
+mask = mask[mask==True]
+true_id = mask.index.tolist()
+##mask_trade_example now contains time_id where trades are >= than 20
+trade_example_all_mask = trade_example_all[trade_example_all['time_id'].isin(true_id)]
 
 
 
