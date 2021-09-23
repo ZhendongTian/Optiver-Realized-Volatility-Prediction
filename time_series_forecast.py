@@ -121,3 +121,29 @@ def make_model(input_shape):
 
 model = make_model(input_shape= X_train.shape[1:])
 keras.utils.plot_model(model, show_shapes=True)
+
+
+
+
+
+
+
+
+############New Codes
+import pandas as pd
+import pickle
+##1. Loading data
+trade_example_all =  pd.read_parquet('trade_train.parquet')
+with open(r"df_joined.pickle", "rb") as input_file:
+    df_joined = pickle.load(input_file)
+
+##2. Feature Engineering
+trade_example_all['avg_order_size'] = trade_example_all['size']/trade_example_all['order_count']
+
+
+##3. Preprocess
+#Remove extreme values of avg_order_size top 0.5%
+#3.1 Normalize column avg_order_size MinMax normlize
+max_value = trade_example_all['avg_order_size'].max()
+min_value = trade_example_all['avg_order_size'].min()
+trade_example_all['avg_order_size'] = (trade_example_all['avg_order_size'] - min_value) / (max_value - min_value)

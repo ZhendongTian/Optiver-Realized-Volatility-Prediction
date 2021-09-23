@@ -28,7 +28,7 @@ trade_example.loc[:,'stock_id'] = stock_id
 book_example['wap'] = (book_example['bid_price1'] * book_example['ask_size1'] +
                                 book_example['ask_price1'] * book_example['bid_size1']) / (
                                        book_example['bid_size1']+ book_example['ask_size1'])
-
+    
 fig = px.line(book_example, x="seconds_in_bucket", y="wap", title='WAP of stock_id_0, time_id_5')
 fig.show()
 
