@@ -166,9 +166,17 @@ trade_example_all_larger = trade_example_all[trade_example_all_mask]
 
 
 ##Get last n records
-n_records = 20
+g = trade_example_all_larger.groupby(['stock_id','time_id'])
+tail_trade_example = g.tail(last_n)
+stock_id = tail_trade_example['stock_id'].unique()
+tail_time_id = tail_trade_example['time_id'].unique()
+tail_row_id = [f'0-%d'%t_id for t_id in tail_time_id]
 
+###prepare df_joined for prediction
+df_joined['tag'] = df_joined['pred'] > df_joined['target']
+mask_df_joined = df_joined[df_joined['row_id'].isin(tail_row_id)]
 
+X = pd.DataFrame(tail_trade_example.groupby('time_id')['price'].apply(pd.Series.tolist).tolist())
 
 
 
