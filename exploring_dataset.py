@@ -102,7 +102,6 @@ df_joined = train.merge(df_past_realized_train[['row_id','pred']], on = ['row_id
 df_joined['diff'] = df_joined['pred'] - df_joined['target']
 df_joined['diff_abs'] = abs(df_joined['pred'] - df_joined['target'])
 
-
 trade_example['mean_order_size'] = trade_example['size']/trade_example['order_count']
 trade_example['price_change'] = trade_example['price'].pct_change(1)
 
