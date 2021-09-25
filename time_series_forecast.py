@@ -164,6 +164,16 @@ trade_example_all_mask = pd.Series(list(zip(trade_example_all['stock_id'], trade
 trade_example_all_larger = trade_example_all[trade_example_all_mask]
 ##trade_example_all_larger now only contains trade record that have length >= 20.
 
+
+##Get last n records
+n_records = 20
+
+
+
+
+
+
+
 #Get df_joined which contains y.
 
 def realized_volatility(series_log_return):
