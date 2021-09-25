@@ -168,18 +168,25 @@ trade_example_all_larger = trade_example_all[trade_example_all_mask]
 ##Get last n records
 g = trade_example_all_larger.groupby(['stock_id','time_id'])
 tail_trade_example = g.tail(last_n)
-stock_id = tail_trade_example['stock_id'].unique()
-tail_time_id = tail_trade_example['time_id'].unique()
-tail_row_id = [f'0-%d'%t_id for t_id in tail_time_id]
+#Merging two columns
+tail_trade_example["stock_id"] = tail_trade_example["stock_id"].astype(str)
+tail_trade_example["time_id"] = tail_trade_example["time_id"].astype(str)
+stock_id_list = tail_trade_example["stock_id"].tolist()
+time_id_list = tail_trade_example["time_id"].tolist()
+row_id = list(set([m+'-'+n for m,n in zip(stock_id_list,time_id_list)]))
+
 
 ###prepare df_joined for prediction
 df_joined['tag'] = df_joined['pred'] > df_joined['target']
-mask_df_joined = df_joined[df_joined['row_id'].isin(tail_row_id)]
+mask_df_joined = df_joined[df_joined['row_id'].isin(row_id)]
+y = mask_df_joined['tag'] * 1
 
-X = pd.DataFrame(tail_trade_example.groupby('time_id')['price'].apply(pd.Series.tolist).tolist())
+#Extract 2-dimensional Xs.
+X_price = pd.DataFrame(tail_trade_example.groupby(['stock_id','time_id'])['price'].apply(pd.Series.tolist).tolist())
+X_aos = pd.DataFrame(tail_trade_example.groupby(['stock_id','time_id'])['avg_order_size'].apply(pd.Series.tolist).tolist())
 
-
-
+#np.stack will make them on top of each other
+np.stack((X_price, X_aos), axis=1)
 
 
 #Get df_joined which contains y.
