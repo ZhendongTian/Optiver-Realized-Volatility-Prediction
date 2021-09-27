@@ -130,6 +130,10 @@ keras.utils.plot_model(model, show_shapes=True)
 
 
 ############Training LSTM using last n records
+
+from tensorflow import keras
+import numpy as np
+import matplotlib.pyplot as plt
 import pandas as pd
 import pickle
 import numpy as np
@@ -185,8 +189,40 @@ y = mask_df_joined['tag'] * 1
 X_price = pd.DataFrame(tail_trade_example.groupby(['stock_id','time_id'])['price'].apply(pd.Series.tolist).tolist())
 X_aos = pd.DataFrame(tail_trade_example.groupby(['stock_id','time_id'])['avg_order_size'].apply(pd.Series.tolist).tolist())
 
-#np.stack will make them on top of each other
-np.stack((X_price, X_aos), axis=1)
+#np.stack will make them on top of each other, on top is price, on bottom is X_aos
+X = np.stack((X_price, X_aos), axis=1)
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
+
+
+def make_model(input_shape):
+    input_layer = keras.layers.Input(input_shape)
+
+    conv1 = keras.layers.Conv1D(filters=64, kernel_size=3, padding="same")(input_layer)
+    conv1 = keras.layers.BatchNormalization()(conv1)
+    conv1 = keras.layers.ReLU()(conv1)
+
+    conv2 = keras.layers.Conv1D(filters=64, kernel_size=3, padding="same")(conv1)
+    conv2 = keras.layers.BatchNormalization()(conv2)
+    conv2 = keras.layers.ReLU()(conv2)
+
+    conv3 = keras.layers.Conv1D(filters=64, kernel_size=3, padding="same")(conv2)
+    conv3 = keras.layers.BatchNormalization()(conv3)
+    conv3 = keras.layers.ReLU()(conv3)
+
+    gap = keras.layers.GlobalAveragePooling1D()(conv3)
+
+    output_layer = keras.layers.Dense(num_classes, activation="softmax")(gap)
+
+    return keras.models.Model(inputs=input_layer, outputs=output_layer)
+
+
+num_classes = len(np.unique(y_train))
+model = make_model(input_shape= X_train.shape[1:])
+keras.utils.plot_model(model, show_shapes=True)
+
+
+
 
 
 #Get df_joined which contains y.
