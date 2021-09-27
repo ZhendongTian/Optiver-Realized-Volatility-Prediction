@@ -195,6 +195,7 @@ from sklearn.model_selection import train_test_split
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
 
 
+num_classes = len(np.unique(y_train))
 def make_model(input_shape):
     input_layer = keras.layers.Input(input_shape)
 
@@ -217,7 +218,6 @@ def make_model(input_shape):
     return keras.models.Model(inputs=input_layer, outputs=output_layer)
 
 
-num_classes = len(np.unique(y_train))
 model = make_model(input_shape= X_train.shape[1:])
 keras.utils.plot_model(model, show_shapes=True)
 
