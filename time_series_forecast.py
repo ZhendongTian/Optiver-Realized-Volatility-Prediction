@@ -184,7 +184,7 @@ row_id = list(set([m+'-'+n for m,n in zip(stock_id_list,time_id_list)]))
 df_joined['tag'] = df_joined['pred'] > df_joined['target']
 mask_df_joined = df_joined[df_joined['row_id'].isin(row_id)]
 y = mask_df_joined['tag'] * 1
-
+y = y.to_numpy(dtype=np.float)
 #Extract 2-dimensional Xs.
 X_price = pd.DataFrame(tail_trade_example.groupby(['stock_id','time_id'])['price'].apply(pd.Series.tolist).tolist())
 X_aos = pd.DataFrame(tail_trade_example.groupby(['stock_id','time_id'])['avg_order_size'].apply(pd.Series.tolist).tolist())
@@ -221,8 +221,39 @@ def make_model(input_shape):
 model = make_model(input_shape= X_train.shape[1:])
 keras.utils.plot_model(model, show_shapes=True)
 
+epochs = 500
+batch_size = 32
 
+callbacks = [
+    keras.callbacks.ModelCheckpoint(
+        "best_model.h5", save_best_only=True, monitor="val_loss"
+    ),
+    keras.callbacks.ReduceLROnPlateau(
+        monitor="val_loss", factor=0.5, patience=20, min_lr=0.0001
+    ),
+    keras.callbacks.EarlyStopping(monitor="val_loss", patience=50, verbose=1),
+]
+model.compile(
+    optimizer="adam",
+    loss="binary_crossentropy",
+    metrics=["accuracy"],
+)
+history = model.fit(
+    X_train,
+    y_train,
+    batch_size=batch_size,
+    epochs=epochs,
+    callbacks=callbacks,
+    validation_split=0.2,
+    verbose=1,
+)
 
+model = keras.models.load_model("best_model.h5")
+
+test_loss, test_acc = model.evaluate(X_test, y_test)
+
+print("Test accuracy", test_acc)
+print("Test loss", test_loss)
 
 
 #Get df_joined which contains y.
